@@ -56,14 +56,14 @@ class Qwen35LanguageModuleArchitecture(ModuleArchitecture, BaseModel, frozen=Tru
     num_experts: Optional[int] = None
 
     def pre_weights(self, config: PretrainedConfig) -> List[WeightInfo]:
-        return [WeightInfo(name=f"{self.root}.embed_tokens.weight", is_embed=True)]
+        return [WeightInfo(name=f"{self.root}.embed_tokens.weight", vocabulary_axis=0)]
 
     def post_weights(self, config: PretrainedConfig) -> List[WeightInfo]:
         return [
             WeightInfo(name=f"{self.root}.norm.weight"),
             WeightInfo(
                 name="lm_head.weight",
-                is_embed=True,
+                vocabulary_axis=0,
                 optional=True,
                 tied_names=(f"{self.root}.embed_tokens.weight",),
             ),
@@ -257,9 +257,9 @@ class Qwen35MtpModuleArchitecture(ModuleArchitecture, BaseModel, frozen=True):
 class Qwen35VisionModuleArchitecture(ModuleArchitecture, BaseModel, frozen=True):
     def pre_weights(self, config: PretrainedConfig) -> List[WeightInfo]:
         return [
-            WeightInfo(name="model.visual.patch_embed.proj.weight", is_embed=True),
+            WeightInfo(name="model.visual.patch_embed.proj.weight"),
             WeightInfo(name="model.visual.patch_embed.proj.bias", optional=True),
-            WeightInfo(name="model.visual.pos_embed.weight", is_embed=True),
+            WeightInfo(name="model.visual.pos_embed.weight"),
             WeightInfo(name="model.visual.merger.norm.weight"),
             WeightInfo(name="model.visual.merger.norm.bias", optional=True),
             WeightInfo(name="model.visual.merger.linear_fc1.weight"),

@@ -223,3 +223,16 @@ def test_qwen35_moe_linear_merge():
             dtype="bfloat16",
         )
         run_and_check_merge(config)
+
+
+def test_qwen35_embedding_metadata_uses_current_vocabulary_axis_api():
+    """Regression: PR #686 used removed WeightInfo(is_embed=True)."""
+    config = _dense_config()
+    weights = {
+        weight.name: weight for weight in arch_info_for_config(config).all_weights(config)
+    }
+    assert weights["model.language_model.embed_tokens.weight"].vocabulary_axis == 0
+    assert weights["lm_head.weight"].vocabulary_axis == 0
+    # Vision convolution and positional embeddings are not tokenizer vocabulary.
+    assert weights["model.visual.patch_embed.proj.weight"].vocabulary_axis is None
+    assert weights["model.visual.pos_embed.weight"].vocabulary_axis is None
